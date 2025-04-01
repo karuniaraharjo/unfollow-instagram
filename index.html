@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Unfollower Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h2>Instagram Unfollower Checker</h2>
+    <p>Unggah file JSON following dan followers dari Instagram</p>
+    <input type="file" id="followingFile" accept=".json"> 
+    <input type="file" id="followersFile" accept=".json"> 
+    <button onclick="checkUnfollowers()">Cek Unfollowers</button>
+    <div id="result"></div>
+
+    <script>
+        function checkUnfollowers() {
+            const followingInput = document.getElementById('followingFile').files[0];
+            const followersInput = document.getElementById('followersFile').files[0];
+
+            if (!followingInput || !followersInput) {
+                alert("Mohon unggah kedua file JSON");
+                return;
+            }
+
+            const readerFollowing = new FileReader();
+            const readerFollowers = new FileReader();
+
+            readerFollowing.onload = function(event) {
+                const followingData = JSON.parse(event.target.result);
+                readerFollowers.readAsText(followersInput);
+            };
+
+            readerFollowers.onload = function(event) {
+                const followersData = JSON.parse(event.target.result);
+                const followingList = followingData.map(user => user.username);
+                const followersList = followersData.map(user => user.username);
+                
+                const unfollowers = followingList.filter(user => !followersList.includes(user));
+                
+                displayUnfollowers(unfollowers);
+            };
+
+            readerFollowing.readAsText(followingInput);
+        }
+
+        function displayUnfollowers(unfollowers) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = "<h3>Akun yang tidak mengikuti balik:</h3>";
+            if (unfollowers.length === 0) {
+                resultDiv.innerHTML += "<p>Semua akun mengikuti balik!</p>";
+            } else {
+                const list = document.createElement('ul');
+                unfollowers.forEach(user => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = user;
+                    list.appendChild(listItem);
+                });
+                resultDiv.appendChild(list);
+            }
+        }
+    </script>
+</body>
+</html>
